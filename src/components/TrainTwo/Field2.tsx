@@ -1,44 +1,52 @@
-import { useCallback, useRef, useState } from 'react';
+import { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import './Fielsd.css';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 export const Field2 = () => {
     const [show, setShow] = useState(false);
-    const nodeRef = useRef(null);
     const [state, setState] = useState<string[]>([]);
+    const nodeRef = state.map(() => useRef(null));
 
-    const deleteItem = (i: number) => {
-        setState((st) => st.filter((_, it) => it !== i));
+    const countRef = useRef(1);
+
+    const setCallbackRef = (index) => (element) => {
+        nodeRef[index].current = element;
+        // Лучшее место для DOM-операций
     };
-    let count = 1;
+    const deleteItem = (i: string) => {
+        setState((st) => st.filter((item) => item !== i));
+    };
 
     const addItem = useCallback(() => {
-        count += 1;
-        setState((s) => [...s, 'n' + count]);
-    }, [count]);
+        const newItem = 'n' + countRef.current++;
+        setState((s) => [...s, newItem]);
+    }, []);
+    console.log(nodeRef.current);
     return (
         <div className="field">
-            <button onClick={addItem}>{show ? 'Close' : 'Open'}</button>
-            {state &&
-                state.map((item, i) => {
-                    return (
+            <button onClick={() => setShow((prev) => !prev)}>
+                {show ? 'Close' : 'Open'}
+            </button>
+            <TransitionGroup>
+                {state.map((item, i) => (
+                    <CSSTransition
+                        key={item}
+                        nodeRef={nodeRef.current[i]}
+                        timeout={300}
+                        classNames="fade"
+                        unmountOnExit
+                    >
                         <div
-                            ref={nodeRef}
-                            key={item}
+                            ref={setCallbackRef(i)}
                             className="fade"
-                            onClick={() => deleteItem(i)}
+                            onClick={() => deleteItem(item)}
                         >
                             {item}
                         </div>
-                    );
-                })}
-            <CSSTransition
-                nodeRef={nodeRef}
-                in={show}
-                timeout={300}
-                classNames="fade"
-                unmountOnExit
-            ></CSSTransition>
+                    </CSSTransition>
+                ))}
+            </TransitionGroup>
+            <button onClick={addItem}>Add Item</button>
         </div>
     );
 };
