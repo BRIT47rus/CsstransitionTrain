@@ -8,7 +8,8 @@
 .hello {
     width: 100vw;
     height: 20vh;
-
+    display: flex;
+    flex-direction: column;
     background: #000;
     color: white;
 }
@@ -20,9 +21,10 @@
     opacity: 1;
 } */
 .fade {
-    width: 1000px;
-    height: 100px;
+    width: 50px;
+    height: 50px;
     background: green;
+    border: 1px solid red;
 }
 .fade-enter {
     opacity: 0;
